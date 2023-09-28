@@ -1,7 +1,6 @@
 from flask import Flask, request, render_template, send_file
 from PIL import Image
 from io import BytesIO
-import base64
 
 from function import process_image_with_pesel_blur
 

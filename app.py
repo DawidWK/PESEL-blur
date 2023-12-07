@@ -1,8 +1,9 @@
+import base64
 from flask import Flask, request, render_template, send_file
 from PIL import Image
 from io import BytesIO
 
-from function import process_image_with_pesel_blur
+from function import get_text_from_image_gpt_vision, get_text_from_image_gpt_vision_with_position, process_image_with_pesel_blur
 
 app = Flask(__name__)
 
@@ -14,6 +15,18 @@ def upload_and_process():
         if uploaded_file.filename != '':
             img = Image.open(uploaded_file)
 
+            # Convert the original image to base64
+            buffered = BytesIO()
+            img.save(buffered, format="PNG")
+            original_img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+
+            # Call the function that requires base64-encoded image
+            words = get_text_from_image_gpt_vision(original_img_base64)
+            output = words['choices'][0]['message']['content']
+            output = output.replace("`", "")
+            output = output.replace("json", "")
+
+            import pdb; pdb.set_trace()
             blurred_image = process_image_with_pesel_blur(img)            
         
             # Save the image to a BytesIO object.

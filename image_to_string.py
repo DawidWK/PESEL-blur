@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # df = pd.read_csv("models/val.csv").dropna().values.tolist()
 
     accum_cer = []
-    test_image =  cv2.imread('static/jestem.png')
+    test_image =  cv2.imread('static/test3.png')
     prediction_text = model.predict(test_image)
     print(prediction_text)
     

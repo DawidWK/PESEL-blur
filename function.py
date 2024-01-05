@@ -5,7 +5,7 @@ import base64
 import requests
 
 # OpenAI API Key
-api_key = "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"
+api_key = ""
 
 def validate_pesel(pesel):
     """Returns True if PESEL is valid, False otherwise"""

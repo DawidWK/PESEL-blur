@@ -1,6 +1,8 @@
 import pytesseract
 import datetime
 from PIL import Image, ImageFilter, ImageDraw
+from openai import OpenAI
+import json
 
 
 def validate_pesel(pesel):
@@ -52,6 +54,34 @@ def validate_pesel(pesel):
     return True
 
 
+def validate_pesel_by_openai(pesel):
+    client = OpenAI()
+
+    completion = client.chat.completions.create(
+    model="gpt-3.5-turbo-1106",
+    messages=[
+        {
+        "role": "system", 
+        "content": """
+            Jesteś asystentem który ma za zadanie wykrywać czy podany wyraz jest daną wrażliwą np PESEL'em albo numerem dowodu.
+
+            Odpowiedź w formacie JSON:
+            {
+            is_sensitive_data: true;
+            data: "pesel"
+            }
+            """
+        },
+        {"role": "user", "content": f"${pesel}"}
+    ],
+    response_format={ "type": "json_object" }
+    )
+
+    output = json.loads(completion.choices[0].message.content)
+    import pdb; pdb.set_trace()
+    return output.get('is_sensitive_data', False)
+
+
 def blur_text_regions(image, text_regions):
     # Create a copy of the input image to work on
     blurred_image = image.copy()
@@ -66,13 +96,20 @@ def blur_text_regions(image, text_regions):
     return blurred_image
 
 
-def process_image_with_pesel_blur(image):
+def process_image_with_pesel_blur(image, validate_with_openai=False):
     # Find and store the text regions that match the PESEL pattern
     pesel_regions = []
     # Use pytesseract to get the bounding box of the text
     data = pytesseract.image_to_data(image, output_type=pytesseract.Output.DICT)
     for index, data_text in enumerate(data['text']):
-        if validate_pesel(data_text):
+        if data_text == '':
+            continue
+        
+        if validate_with_openai:
+            is_pesel = validate_pesel_by_openai(data_text)
+        else:
+            is_pesel = validate_pesel(data_text)
+        if is_pesel:
             x, y, w, h = data['left'][index], data['top'][index], data['width'][index], data['height'][index]
             pesel_regions.append((x, y, w, h))
     

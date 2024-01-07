@@ -10,7 +10,7 @@ Before running this application, you'll need the following installed on your sys
 
 - Python 3.x
 - pip (Python package manager)
-
+- .env file inside work directory, with OPENAI_API_KEY variable with OpenAi api key 
 
 ## Installing and Running with Docker
 

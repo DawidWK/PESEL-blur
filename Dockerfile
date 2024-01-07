@@ -19,5 +19,5 @@ COPY . .
 # Expose the port the application will run on
 EXPOSE 8000
 
-# Define the command to run your Flask app
+# Command to run your Flask app
 CMD ["python", "app.py"]

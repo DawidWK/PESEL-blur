@@ -6,15 +6,18 @@ from function import process_image_with_pesel_blur
 
 app = Flask(__name__)
 
+VALIDATE_WIGH_OPENAI = False
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_and_process():
     if request.method == 'POST':
         uploaded_file = request.files['file']
-        if uploaded_file.filename != '':
+        
+        is_image = uploaded_file.filename != '' and (uploaded_file.filename.endswith('.png') or uploaded_file.filename.endswith('.jpg') or uploaded_file.filename.endswith('.jpeg'))
+        
+        if is_image:
             img = Image.open(uploaded_file)
-
-            blurred_image = process_image_with_pesel_blur(img)            
+            blurred_image = process_image_with_pesel_blur(img, VALIDATE_WIGH_OPENAI)            
         
             # Save the image to a BytesIO object.
             img_io = BytesIO()
